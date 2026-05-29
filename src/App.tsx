@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import Landing from './pages/Landing';
 import Auth from './pages/Auth';
@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
@@ -77,7 +77,7 @@ export default function App() {
             } 
           />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }
