@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A YouTube user profile",
+      "type": "object",
+      "properties": {
+        "handle": { "type": "string" },
+        "name": { "type": "string" },
+        "subscriberCount": { "type": "number" },
+        "subscriptions": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["handle", "name", "subscriberCount"]
+    },
+    "Video": {
+      "title": "Video",
+      "description": "A YouTube video",
+      "type": "object",
+      "properties": {
+        "handle": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "type": { "type": "string", "enum": ["video", "short"] },
+        "createdAt": { "type": "number" },
+        "views": { "type": "number" },
+        "likes": { "type": "number" }
+      },
+      "required": ["handle", "title", "description", "type", "createdAt", "views"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A comment on a video",
+      "type": "object",
+      "properties": {
+        "videoId": { "type": "string" },
+        "userHandle": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "likes": { "type": "number" }
+      },
+      "required": ["videoId", "userHandle", "text", "createdAt"]
+    },
+    "UserLikes": {
+      "title": "User Likes",
+      "description": "Tracks liked videos and comments for a user",
+      "type": "object",
+      "properties": {
+        "likedVideos": { "type": "array", "items": { "type": "string" } },
+        "likedComments": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "firestore": {
+    "users/{userHandle}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "users/{userHandle}/private/likes": {
+      "schema": { "$ref": "#/entities/UserLikes" },
+      "description": "Private likes subcollection"
+    },
+    "videos/{videoId}": {
+      "schema": { "$ref": "#/entities/Video" },
+      "description": "Videos metadata"
+    },
+    "comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "Comments on videos"
+    }
+  }
+}

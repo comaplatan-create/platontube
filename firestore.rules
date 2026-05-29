@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['handle', 'name', 'subscriberCount', 'uid'])
+        && data.handle is string && data.handle.size() <= 128
+        && data.name is string && data.name.size() <= 128
+        && data.subscriberCount is number
+        && data.uid == request.auth.uid
+        && (!data.keys().hasAll(['avatarUrl']) || (data.avatarUrl is string));
+    }
+
+    match /users/{userHandle} {
+      // Anyone can read profiles
+      allow read: if true;
+      allow create: if isSignedIn()
+        && isValidUser(incoming())
+        && incoming().handle == userHandle;
+      allow update: if isSignedIn()
+        && existing().uid == request.auth.uid;
+      allow delete: if isSignedIn()
+        && existing().uid == request.auth.uid;
+    }
+    
+    match /users/{userHandle}/private/likes {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    function isValidVideo(data) {
+      return data.keys().hasAll(['handle', 'title', 'description', 'type', 'createdAt', 'views'])
+        && data.handle is string
+        && data.title is string && data.title.size() <= 200
+        && data.description is string && data.description.size() <= 5000
+        && data.type in ['video', 'short']
+        && data.createdAt is number
+        && data.views is number;
+    }
+
+    match /videos/{videoId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && isValidVideo(incoming());
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn(); // We don't have userHandle checked here precisely yet
+    }
+
+    function isValidComment(data) {
+      return data.keys().hasAll(['videoId', 'userHandle', 'text', 'createdAt'])
+        && data.videoId is string
+        && data.userHandle is string
+        && data.text is string && data.text.size() <= 1000
+        && data.createdAt is number;
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && isValidComment(incoming());
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+  }
+}
