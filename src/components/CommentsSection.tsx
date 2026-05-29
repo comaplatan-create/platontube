@@ -56,7 +56,7 @@ export default function CommentsSection({ videoId }: { videoId: string | number 
     setIsSubmitting(true);
     try {
       const commentToSave: Comment = {
-        videoId,
+        videoId: String(videoId),
         userHandle: currentUser.handle,
         text: newComment.trim(),
         createdAt: Date.now(),

@@ -42,7 +42,7 @@ export default function Watch() {
           setAuthor(a || null);
           
           if (currentUser) {
-            setIsLiked(currentUser.likedVideos?.includes(dbId) || false);
+            setIsLiked(currentUser.likedVideos?.includes(dbId.toString()) || false);
             if (a) {
               setIsSubscribed(currentUser.subscriptions?.includes(a.handle) || false);
             }
